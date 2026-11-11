@@ -1,0 +1,25 @@
+services:
+  xray-node:
+    # Prebuilt multi-arch image (built by GitHub Actions):
+    image: ghcr.io/grifonsk/xray-node:latest
+    # For a local build use both lines below instead of the image above:
+    # build: .
+    # image: xray-node:latest
+    container_name: xray-node
+    restart: unless-stopped
+    ports:
+      - "10890:10890"   # VLESS + REALITY (router forward)
+      - "10889:10889"   # subscriptions (router forward)
+      - "2053:2053"     # 3x-ui panel (LAN only)
+      - "10888:10888"   # mixed/SOCKS (LAN only)
+    volumes:
+      - ./config.yaml:/config/config.yaml:ro
+      - ./data/x-ui:/etc/x-ui
+      - ./data/tailscale:/var/lib/tailscale
+      # - ./certs:/config/certs:ro
+    environment:
+      - TZ=Europe/Moscow
+    # Needed only for MSS clamping / ethtool inside the container.
+    # Userspace Tailscale works without it; the host can also clamp MSS.
+    # cap_add:
+    #   - NET_ADMIN
