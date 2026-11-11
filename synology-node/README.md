@@ -47,7 +47,8 @@ ghcr.io/grifonsk/xray-node:latest
 5. На роутере пробросьте:
    - `10890/tcp` → Synology:10890 (VLESS)
    - `10889/tcp` → Synology:10889 (подписки, если нужны)
-   - `2053/tcp` — только LAN (панель).
+   - `2053/tcp` — только LAN (панель)
+   - **`41641/udp` → Synology:41641** — для Tailscale direct (обязательно, если UPnP на роутере выключен). В `docker-compose.yml` маппинг `41641:41641/udp` уже добавлен, порт фиксируется через `tailscale.port`.
 
 ## Synology
 - Container Manager → **Project** → создать из папки с `docker-compose.yml`

@@ -139,7 +139,8 @@ def apply_tailscale(cfg):
     state = os.path.join(state_dir, "tailscaled.state")
     mode = str(ts.get("mode", "userspace")).lower()
 
-    cmd = ["tailscaled", "--state=" + state, "--socket=" + sock]
+    cmd = ["tailscaled", "--state=" + state, "--socket=" + sock,
+           "--port=%d" % int(ts.get("port", 41641))]
     if mode == "userspace":
         socks_port = int(ts.get("socks_port", 1055))
         cmd += ["--tun=userspace-networking", "--socks5-server=127.0.0.1:%d" % socks_port]
@@ -516,8 +517,8 @@ def apply_mss_gso(cfg):
     mss = cfg.get("mss", {}) or {}
     if mss.get("enabled", True):
         value = str(mss.get("value", 1360))
-        for spec in (["-t", "mangle", "PREROUTING", "-p", "tcp", "--dport", str(port), "--tcp-flags", "SYN,RST", "SYN", "-j", "TCPMSS", "--set-mss", value],
-                     ["-t", "mangle", "OUTPUT", "-p", "tcp", "--sport", str(port), "--tcp-flags", "SYN,RST", "SYN", "-j", "TCPMSS", "--set-mss", value]):
+        for spec in (["-t", "mangle", "-A", "PREROUTING", "-p", "tcp", "--dport", str(port), "--tcp-flags", "SYN,RST", "SYN", "-j", "TCPMSS", "--set-mss", value],
+                     ["-t", "mangle", "-A", "OUTPUT", "-p", "tcp", "--sport", str(port), "--tcp-flags", "SYN,RST", "SYN", "-j", "TCPMSS", "--set-mss", value]):
             try:
                 subprocess.run(["iptables"] + spec, check=True)
                 log("mss clamp applied", value)

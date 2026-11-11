@@ -12,6 +12,7 @@ services:
       - "10889:10889"   # subscriptions (router forward)
       - "2053:2053"     # 3x-ui panel (LAN only)
       - "10888:10888"   # mixed/SOCKS (LAN only)
+      - "41641:41641/udp"  # Tailscale direct (UPnP off -> forward this on the router)
     volumes:
       - ./config.yaml:/config/config.yaml:ro
       - ./data/x-ui:/etc/x-ui

@@ -16,6 +16,8 @@ tailscale:
   hostname: "synology-xray"
   # 62yun-vps (Madrid). Must be approved as exit node in the Tailscale admin.
   exit_node: "100.116.29.54"
+  # Fixed WireGuard/disco UDP port. Forward it on the router and map it in Docker.
+  port: 41641
   socks_port: 1055
   state_dir: "/var/lib/tailscale"
   accept_routes: false
