@@ -1,0 +1,50 @@
+name: synology-node image
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*", "synology-node-*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/grifonsk/xray-node
+          tags: |
+            type=raw,value=latest
+            type=ref,event=tag
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.source=https://github.com/GrifonSK/3x-ui_ts
+            org.opencontainers.image.title=3x-ui + Tailscale node
+            org.opencontainers.image.description=3x-ui with VLESS REALITY and a Tailscale userspace exit-node client
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./synology-node
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            XUI_IMAGE=ghcr.io/mhsanaei/3x-ui:latest
